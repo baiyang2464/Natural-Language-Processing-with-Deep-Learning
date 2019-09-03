@@ -18,73 +18,80 @@
 第一：我们需要一个大的平行语料库据（例如：翻译成法语 / 英语的句子对)。下图是世界上第一个平行语料库：罗塞塔石碑： 
 
 <p align="center">
-	<img src=./pictures/090313.PNG alt="Sample"  width="450">
+	<img src=./pictures/090313.png alt="Sample"  width="450">
 	<p align="center">
 		<em> </em>
 	</p>
 </p>
 
- 
+
+
 
 第二：对齐（翻译句子中特定词语之间的对应关系）。即法语句子 x 与英语句子 y 之间的单词级对应。对齐时，原文中可能有部分词语没有对应的译文，如下图所示： 
 
 <p align="center">
-	<img src=./pictures/090314.PNG alt="Sample"  width="550">
+	<img src=./pictures/090314.png alt="Sample"  width="550">
 	<p align="center">
 		<em> </em>
 	</p>
 </p>
+
 
 
 
 对齐可以是多对一的，如下图所示： 
 
 <p align="center">
-	<img src=./pictures/090315.PNG alt="Sample"  width="550">
+	<img src=./pictures/090315.png alt="Sample"  width="550">
 	<p align="center">
 		<em> </em>
 	</p>
 </p> 
+
 
 对齐可以是一对多的，如下图所示： 
 
 <p align="center">
-	<img src=./pictures/090316.PNG alt="Sample"  width="550">
+	<img src=./pictures/090316.png alt="Sample"  width="550">
 	<p align="center">
 		<em> </em>
 	</p>
 </p>
 
- 
+
+
 
 当然，对齐可以是多对多 (短语级)，如下图所示： 
 
 <p align="center">
-	<img src=./pictures/090317.PNG alt="Sample"  width="550">
+	<img src=./pictures/090317.png alt="Sample"  width="550">
 	<p align="center">
 		<em> </em>
 	</p>
 </p>
 
- 
+
+
 
 对齐之后，原文中每个单词都有多个备选单词，导致了许多短语的组合方式，如下图所示： 
 
 <p align="center">
-	<img src=./pictures/090318.PNG alt="Sample"  width="650">
+	<img src=./pictures/090318.png alt="Sample"  width="650">
 	<p align="center">
 		<em> </em>
 	</p>
 </p>
 
+
 第三：解码，即使用 heuristic search 算法搜索最佳翻译，丢弃概率过低的假设，如下图所示： 
 
 <p align="center">
-	<img src=./pictures/090319.PNG alt="Sample"  width="650">
+	<img src=./pictures/090319.png alt="Sample"  width="650">
 	<p align="center">
 		<em> </em>
 	</p>
 </p> 
+
 
 以上所述，这还只是传统机器翻译系统的冰山一角，有许多细节没有涉及到，还需要大量的特征工程和人力维护，总之是非常复杂的系统。其中每个环节都是独立不同的机器学习问题。
 
