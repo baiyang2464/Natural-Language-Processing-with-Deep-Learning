@@ -219,12 +219,13 @@ BLEU（Bilingual Evaluation Understudy）是一个人们普遍运用的 MT 模�
 
 ### 2. 公式理解
 
-<p align="center">
-	<img src=./pictures/090306.png alt="Sample"  width="700">
+<p align="left">
+	<img src=./pictures/090306.png alt="Sample"  width="600">
 	<p align="center">
 		<em> </em>
 	</p>
 </p>  
+
 
 首先，来做一下定义：编码器的隐藏状态为: h_1,……,h_N。在时间步 t，解码器的隐藏状态为：s_t。
 
