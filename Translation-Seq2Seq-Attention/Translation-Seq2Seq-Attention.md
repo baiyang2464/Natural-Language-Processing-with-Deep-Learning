@@ -1,28 +1,91 @@
+
+
 [原文链接](<https://blog.csdn.net/abcgkj/article/details/95180232>)
 
 一、统计机器翻译
 --------
 
 1990s-2010s，人们主要使用的是统计机器翻译。其核心思想是：从数据中学习概率模型。假设我们想把法语翻译为英语，即给定法语句子 x，寻找最佳的英语句子 y。我们可以用下图来描述： 
+
 ![](https://img-blog.csdnimg.cn/20190709114502580.png) 
+
 然后，我们可以使用贝叶斯来把上式分解成两个部分，如下图所示： 
+
 ![](https://img-blog.csdnimg.cn/20190709114517196.png) 
+
 其中，P(x|y): 可以视为翻译模型。模型从并行数据中学习，单词或句子应该如何被翻译。P(y)：可以被视为语言模型。在本例子中，从英语数据中学习如何写好英语 (流利)。之前的学习中，我们已经介绍过语言模型，这里不再赘述。因此，如何得到翻译模型 P(x|y) 是重点。下面我们分步来介绍传统的机器翻译是怎样实现的：
 
 第一：我们需要一个大的平行语料库据（例如：翻译成法语 / 英语的句子对)。下图是世界上第一个平行语料库：罗塞塔石碑： 
-![](https://img-blog.csdnimg.cn/20190709114533767.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FiY2drag==,size_16,color_FFFFFF,t_70) 
+
+<p align="center">
+	<img src=./pictures/090313.PNG alt="Sample"  width="450">
+	<p align="center">
+		<em> </em>
+	</p>
+</p>
+
+ 
+
 第二：对齐（翻译句子中特定词语之间的对应关系）。即法语句子 x 与英语句子 y 之间的单词级对应。对齐时，原文中可能有部分词语没有对应的译文，如下图所示： 
-![](https://img-blog.csdnimg.cn/20190709114545870.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FiY2drag==,size_16,color_FFFFFF,t_70) 
+
+<p align="center">
+	<img src=./pictures/090314.PNG alt="Sample"  width="550">
+	<p align="center">
+		<em> </em>
+	</p>
+</p>
+
+
+
 对齐可以是多对一的，如下图所示： 
-![](https://img-blog.csdnimg.cn/20190709114559756.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FiY2drag==,size_16,color_FFFFFF,t_70) 
+
+<p align="center">
+	<img src=./pictures/090315.PNG alt="Sample"  width="550">
+	<p align="center">
+		<em> </em>
+	</p>
+</p> 
+
 对齐可以是一对多的，如下图所示： 
-![](https://img-blog.csdnimg.cn/20190709114611263.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FiY2drag==,size_16,color_FFFFFF,t_70) 
+
+<p align="center">
+	<img src=./pictures/090316.PNG alt="Sample"  width="550">
+	<p align="center">
+		<em> </em>
+	</p>
+</p>
+
+ 
+
 当然，对齐可以是多对多 (短语级)，如下图所示： 
-![](https://img-blog.csdnimg.cn/20190709114621906.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FiY2drag==,size_16,color_FFFFFF,t_70) 
+
+<p align="center">
+	<img src=./pictures/090317.PNG alt="Sample"  width="550">
+	<p align="center">
+		<em> </em>
+	</p>
+</p>
+
+ 
+
 对齐之后，原文中每个单词都有多个备选单词，导致了许多短语的组合方式，如下图所示： 
-![](https://img-blog.csdnimg.cn/20190709114634315.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FiY2drag==,size_16,color_FFFFFF,t_70) 
+
+<p align="center">
+	<img src=./pictures/090318.PNG alt="Sample"  width="650">
+	<p align="center">
+		<em> </em>
+	</p>
+</p>
+
 第三：解码，即使用 heuristic search 算法搜索最佳翻译，丢弃概率过低的假设，如下图所示： 
-![](https://img-blog.csdnimg.cn/20190709114649713.png) 
+
+<p align="center">
+	<img src=./pictures/090319.PNG alt="Sample"  width="650">
+	<p align="center">
+		<em> </em>
+	</p>
+</p> 
+
 以上所述，这还只是传统机器翻译系统的冰山一角，有许多细节没有涉及到，还需要大量的特征工程和人力维护，总之是非常复杂的系统。其中每个环节都是独立不同的机器学习问题。
 
 而深度学习则提供了一个统一的模型，一个统一的最终目标函数。在优化目标函数的过程中，得到一个 end to end 的完整的 joint 模型。传统机器翻译系统与深度学习是截然相反的，对齐模型、词序模型、语言模型…… 一堆独立的模型无法联合训练。接下来我们来介绍神经机器翻译模型。
@@ -58,7 +121,7 @@ Encoder 负责将输入的原文本编码成一个向量（context），该向�
 
 + 解码器decoder
 
-Decoder 是一种以编码为条件生成目标句的语言模型，即使用 Encoder 的最终状态和作为 Decoder 的初始隐状态。除此之外，Decoder 每个cell的输入还来源于前一个时刻的隐藏层和前一个预测结果。如下图所示，这是在测试时的 Decoder，下文会介绍如何训练： 
+Decoder 是一种以编码为条件生成目标句的语言模型，即使用 Encoder 的最终状态和作为 Decoder 的初始隐状态。除此之外，Decoder 的每个cell的输入还来源于前一个时刻的隐藏层和前一个预测结果。如下图所示，这是在测试时的 Decoder，下文会介绍如何训练： 
 
 <p align="center">
 	<img src=./pictures/090302.png alt="Sample"  width="500">
@@ -215,11 +278,20 @@ BLEU（Bilingual Evaluation Understudy）是一个人们普遍运用的 MT 模�
 
   假设我们拥有一些值 h_1,……,h_N，维度为 d_1 和一个查询 s，维度为 d_2，且 d_1 = d_2，则：
   + Basic dot-product attention(和上文介绍的 attention 一致)： 
+    
     ![](https://img-blog.csdnimg.cn/20190709115241118.png)
+    
   + Multiplicative attention：这里的 W 是一个维度为 d_2 * d_1 的权重矩阵，也是我们需要更新的参数之一
+    
     ![](https://img-blog.csdnimg.cn/20190709115253571.png)
+  
+  
+  
   + Additive attention：这里的 W_1 的维度是 d_3 *d_1，W_2 的维度是 d_3 *d_2，v 是一个维度为 d_3 的权重向量，d_3 也是模型中的一个超参数 
+    
     ![](https://img-blog.csdnimg.cn/20190709115302580.png)
+  
+  
 
 小结
 --
