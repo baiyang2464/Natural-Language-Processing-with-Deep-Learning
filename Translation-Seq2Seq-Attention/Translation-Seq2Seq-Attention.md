@@ -225,8 +225,6 @@ BLEU（Bilingual Evaluation Understudy）是一个人们普遍运用的 MT 模�
 		<em> </em>
 	</p>
 </p>  
-
-
 首先，来做一下定义：编码器的隐藏状态为: h_1,……,h_N。在时间步 t，解码器的隐藏状态为：s_t。
 
 用t时刻decoder的隐状态s_t点乘encoder中的N个隐状态得到N个标量，就得到 t 时间步下的 attention 分数e^t：
@@ -276,13 +274,38 @@ BLEU（Bilingual Evaluation Understudy）是一个人们普遍运用的 MT 模�
 
 + 广义attention定义
 
-接下来我们给出更加广义的 attention 定义：
+将Source中的构成元素想象成是由一系列的<Key,Value>数据对构成，此时给定Target中的某个元素Query，通过计算Query和各个Key的相似性或者相关性，得到每个Key对应Value的权重系数（或叫注意力分布），然后对Value进行加权平均，即得到了最终的Attention数值。所以本质上Attention机制是对Source中元素的Value值进行加权求和，而Query和Key用来计算对应Value的权重系数。即可以将其本质思想改写为如下公式：
 
-给定一组向量值（encode过程中所有输出的隐状态，一个隐状态就是一个向量）和一个向量查询querry（decode过程中t时刻的输出的隐状态），
+(1)计算Query和各个Key的相似性
 
-注意力机制是一种根据查询计算值的加权和的技术（我们的注意力就体现在我们的查询中）。因此有时，我们也简单称之为查询处理值。例如，在 seq2seq + attention 模型中，每个解码器隐藏状态 (查询) 都关注所有编码器隐藏状态(值)。因此注意力机制中的加权和是值中包含的信息的选择性汇总，查询在其中确定要关注哪些值。
+![](./pictures/090320.svg)
 
-+ attention 机制中计算attention分数的几种常见形式：
+`s`为注意力打分函数，用来计算`querry`与`key_t`的相似性
+
+(2)计算注意力分布
+
+主要是利用softmax函数计算注意力分布：
+
+![](./pictures/090321.svg)
+
+
+
+(3)加权求平均
+
+attention的输出：
+
+![](./pictures/090322.svg)
+
+键值对注意力机制图示
+
+<p align="center">
+	<img src=./pictures/090323.png alt="Sample"  width="300">
+	<p align="center">
+		<em> </em>
+	</p>
+</p> 
+
++ attention 机制中计算attention打分分数的几种常见形式：
 
   假设我们拥有一些值 h_1,……,h_N，维度为 d_1 和一个查询 s，维度为 d_2，且 d_1 = d_2，则：
   + Basic dot-product attention(和上文介绍的 attention 一致)： 
