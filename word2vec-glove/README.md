@@ -167,3 +167,6 @@ SGD的目标函数来达到最大化![](./pictures/090806.png) ，最小化![](.
 		<em> </em>
 	</p>
 </p>
+
+[如何记忆这个公式](<https://blog.csdn.net/coderTC/article/details/73864097>)
+
