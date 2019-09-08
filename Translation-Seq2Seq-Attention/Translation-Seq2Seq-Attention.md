@@ -1,7 +1,5 @@
 
 
-[原文链接](<https://blog.csdn.net/abcgkj/article/details/95180232>)
-
 一、统计机器翻译
 --------
 
