@@ -1,16 +1,18 @@
-### 0.Attention Is All You Need
+[TOC]
 
-[attention is all you need.pdf](https://github.com/baiyang2464/Natural-Language-Processing-with-Deep-Learning/blob/master/transformer-self-attention/attention is all you need.pdf)
+## 0.Attention Is All You Need
+
+[attention is all you need](./attention-is-all-you-need.pdf)
 
 主要的序列转换模型都是基于复杂的 RNN 或 CNN的encoder-decoder模型。表现最佳的模型也需通过注意力机制（attention mechanism）连接编码器和解码器。论文提出了一种新型的简单网络架构——Transformer，它完全基于注意力机制，准确的说是自注意self-attention机制，彻底放弃了循环和卷积
 
 self-attention是一种会对一个单独的序列对不同位置进行关联的注意力机制。
 
-### 1.transformer架构
+## 1.transformer架构
 
 沿用了encoder-decoder架构，框架用于解决由一个任意长度的源序列到另一个任意长度的目标序列的变换问题。即编码阶段将整个源序列编码成一个向量，解码阶段通过最大化预测序列概率，从中解码出整个目标序列。Transformer同样使用了encoder-decoder，在编码和解码阶段均使用stacked self-attention、和全连接。
 
-#### 1.1 encoder and decoder stacks
+### 1.1 encoder and decoder stacks
 
 
 
@@ -40,7 +42,7 @@ masked multi-head attention层，通过添加mask，这个子层不要encoder的
 
 encoder-decoder multi-head self-attention layer用encoder最后的输出，一个`[sequence_len , d_model]`的矩阵，计算K，V，用上一层decoder的输出作为Q作为本层decoder的输入。
 
-#### 1.2 attention
+### 1.2 attention
 
 attention函数：将一个query和一系列的(key, value)对映射起来。其中，query、key、value均是向量，维度分别为d_k, d_k, d_v。最终的输出是各value的加权组合：
 
@@ -64,7 +66,7 @@ query和所有key算点积，然后除以`√dk`，然后算softmax，得到的�
 
 当d_model较大时，点积会变得特别大，所以softmax会出现有些区域的梯度变得特别小，因此，需要通过除以`√dk`来控制进行适度缩放。
 
-#### 1.3 multi-head attention
+### 1.3 multi-head attention
 
 实际应用中，并不是直接计算`dmodel`维【前面提到了，架构中的所有子层（包括embedding）,输出的维度均是`dmodel=512`】的query，key，value。而是把这`dmodel`维拆成`h`份，所以`d_k=d_v=d_model/h`,(因为`d_model`是一样的，`h`也是一样的【论文中设为8】，所以`dk=dv=d_model/h=512/8=64`)。而这个变换通过对`Q,K,W`各自进行一个线性变换，变成`dk,dk,dv`维即可，最终通过concat(把`h=8`个结果首尾相连)，然后再做一个线性变换，变成`dmodel`维。
 
@@ -88,7 +90,7 @@ query和所有key算点积，然后除以`√dk`，然后算softmax，得到的�
 + encoder有self-attention层。在self-attention中，所有层的key，value和query都来自于前一层encoder的输出。因此，当前层的encoder的每个位置可以(attend to)学习前一层的所有位置上的依赖关系。
 + 类似的，当前层的encoder的每个位置（例如位置i）可以attend to前一层的所有位置（包括位置i）。但为了保持auto-regressive特性，需要阻止leftword infomation（左边，即encoder的输出） 流入decoder，所以在scaled dot-product attention里使用mask把所有输入给softmax的 当前位置 i 之后的值都mask掉。
 
-#### 1.4  feed-forward networks
+### 1.4  feed-forward networks
 
 其实每个encoder和decoder层，除了attention子层之外，还有一个全连接的前馈网络。这个前馈网络会作用于每一个position。这个前馈网络包括了两种线性变换：
 
@@ -98,8 +100,7 @@ query和所有key算点积，然后除以`√dk`，然后算softmax，得到的�
 		<em> </em>
 	</p>
 </p>
-
-#### 1.5 positional encoding
+### 1.5 positional encoding
 
 为了学习位置信息，为输入增加位置嵌入向量
 
@@ -115,7 +116,7 @@ pos是词在序列中的绝对位置，i是位置向量的某个维度。因为�
 
 将每个位置编号，然后**每个编号对应一个向量**，通过结合位置向量和词向量，就给每个词都引入了一定的位置信息，这样Attention就可以分辨出不同位置的词了。
 
-#### 1.6 embeddings and softmax
+### 1.6 embeddings and softmax
 
 与其他序列转换模型类似，本文也使用learned embeddings对input tokens和output tokens转换为`dmodel`维的向量（架构图中的 input embedding和output embedding）。
 
@@ -123,7 +124,7 @@ pos是词在序列中的绝对位置，i是位置向量的某个维度。因为�
 
 
 
-### 2.为什么要self-attention
+## 2.为什么要self-attention
 
 主要就序列到序列任务对比CNN和RNN
 
@@ -183,3 +184,6 @@ pos是词在序列中的绝对位置，i是位置向量的某个维度。因为�
 </p>
 
 **总结**：self-attention既可以并行学习，又可以较方便的学习到长距离的依赖关系，加入“多头自注意”机制还可以学习到不同种类的依赖关系。
+
+## 3.transformer总体过程概述
+
