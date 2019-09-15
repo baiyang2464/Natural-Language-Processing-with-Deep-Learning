@@ -71,11 +71,12 @@ query和所有key算点积，然后除以`√dk`，然后算softmax，得到的�
 实际应用中，并不是直接计算`dmodel`维【前面提到了，架构中的所有子层（包括embedding）,输出的维度均是`dmodel=512`】的query，key，value。而是把这`dmodel`维拆成`h`份，所以`d_k=d_v=d_model/h`,(因为`d_model`是一样的，`h`也是一样的【论文中设为8】，所以`dk=dv=d_model/h=512/8=64`)。而这个变换通过对`Q,K,W`各自进行一个线性变换，变成`dk,dk,dv`维即可，最终通过concat(把`h=8`个结果首尾相连)，然后再做一个线性变换，变成`dmodel`维。
 
 <p align="center">
-	<img src=./pictures/091404.svg alt="Sample"  width="450">
+	<img src=./pictures/091408.svg alt="Sample"  width="450">
 	<p align="center">
 		<em> </em>
 	</p>
 </p>
+
 
 <p align="center">
 	<img src=./pictures/091405.svg alt="Sample"  width="150">
@@ -90,9 +91,11 @@ query和所有key算点积，然后除以`√dk`，然后算softmax，得到的�
 + encoder有self-attention层。在self-attention中，所有层的key，value和query都来自于前一层encoder的输出。因此，当前层的encoder的每个位置可以(attend to)学习前一层的所有位置上的依赖关系。
 + 类似的，当前层的encoder的每个位置（例如位置i）可以attend to前一层的所有位置（包括位置i）。但为了保持auto-regressive特性，需要阻止leftword infomation（左边，即encoder的输出） 流入decoder，所以在scaled dot-product attention里使用mask把所有输入给softmax的 当前位置 i 之后的值都mask掉。
 
-### 1.4  feed-forward networks
+### 1.4 Position-wise Feed-forward networks
 
-其实每个encoder和decoder层，除了attention子层之外，还有一个全连接的前馈网络。这个前馈网络会作用于每一个position。这个前馈网络包括了两种线性变换：
+其实每个encoder和decoder层，除了attention子层之外，还有一个全连接的前馈网络。为什么叫Position-wise，是因为multi-attention层输出的是每个positon的attention，这个前馈网络只能独立作用于每一个position。即输入是一个矩阵，每一行是一个position的向量表示（就是一个词对应的attention输出）尺寸为[1,d_model]=512，W1将向量映射为[1,d_items=2048]，W2再将向量映射为[1,d_model=512]，然后共有sequence_len个这样的向量。**一层内不同位置的线性变换是一样的，不同层的变换是不同的。**
+
+这个前馈网络的两种线性变换可描述为：
 
 <p align="center">
 	<img src=./pictures/091406.svg alt="Sample"  width="650">
@@ -100,6 +103,8 @@ query和所有key算点积，然后除以`√dk`，然后算softmax，得到的�
 		<em> </em>
 	</p>
 </p>
+
+
 ### 1.5 positional encoding
 
 为了学习位置信息，为输入增加位置嵌入向量
@@ -115,6 +120,20 @@ query和所有key算点积，然后除以`√dk`，然后算softmax，得到的�
 pos是词在序列中的绝对位置，i是位置向量的某个维度。因为对于任意固定的offset k，`PE（pos+k）`能被表示为`PE（pos）`的线性函数。即把id为`pos`的位置，映射成一个`d_model`维的向量，这个向量的第i个元素的数值是`PE(pos,i)`。
 
 将每个位置编号，然后**每个编号对应一个向量**，通过结合位置向量和词向量，就给每个词都引入了一定的位置信息，这样Attention就可以分辨出不同位置的词了。
+
+<p align="center">
+	<img src=./pictures/transformer_positional_encoding_example.png alt="Sample"  width="600">
+	<p align="center">
+		<em> </em>
+	</p>
+</p>
+
+<p align="center">
+	<img src=./pictures/091409.png alt="Sample"  width="700">
+	<p align="center">
+		<em> </em>
+	</p>
+</p>
 
 ### 1.6 embeddings and softmax
 
@@ -182,8 +201,36 @@ pos是词在序列中的绝对位置，i是位置向量的某个维度。因为�
 		<em>CNN\RNN\self-attention对比</em>
 	</p>
 </p>
-
 **总结**：self-attention既可以并行学习，又可以较方便的学习到长距离的依赖关系，加入“多头自注意”机制还可以学习到不同种类的依赖关系。
 
 ## 3.transformer总体过程概述
+
+最后来看一下具体的生成过程。首先，将输入的序列![[公式]](https://www.zhihu.com/equation?tex=%28x_%7B1%7D%2Cx_%7B2%7D%2C...%2Cx_%7Bn%7D%29)通过word embedding，得到一个![[公式]](https://www.zhihu.com/equation?tex=n%5Ctimes+d_%7Bmodel%7D)的矩阵，然后将其于position encoding矩阵相加，就得到了encoder的输入。此时，该输入经过线性变换后被得到Q,K,V被同时送入到multi-head attention中。经过运算，得到head ![[公式]](https://www.zhihu.com/equation?tex=i%281%5Cleq+i%5Cleq+h%29)的![[公式]](https://www.zhihu.com/equation?tex=Q_%7Bi%7D%5Cin+%5Cmathbb%7BR%7D%5E%7Bn%5Ctimes+d_%7Bk%7D%7D%2C+K_%7Bi%7D%5Cin+%5Cmathbb%7BR%7D%5E%7Bn%5Ctimes+d_%7Bk%7D%7D%2C%3Cbr%3EV_%7Bi%7D%5Cin+%5Cmathbb%7BR%7D%5E%7Bn%5Ctimes+d_%7Bv%7D%7D)，然后，将其分别通过scaled dot-product attention，将结果进行连接，就得到了multi-head attention的输出结果（在本文中直接使用的是![[公式]](https://www.zhihu.com/equation?tex=d_%7Bk%7D%3Dd_%7Bv%7D%3Dd_%7Bmodel%7D%2Fh)，所以这个结果与输入相同，都是![[公式]](https://www.zhihu.com/equation?tex=n%5Ctimes+d_%7Bmodel%7D)维的；如果不同的话，也可以使用一个线性变换将其转换成![[公式]](https://www.zhihu.com/equation?tex=n%5Ctimes+d_%7Bmodel%7D)维的）。
+
+得到multi-head attention所输出的![[公式]](https://www.zhihu.com/equation?tex=n%5Ctimes+d_%7Bmodel%7D)维矩阵之后，需要通过一个 Position-wise Feed-Forward Networks。其输入与输出都是![[公式]](https://www.zhihu.com/equation?tex=d_%7Bmodel%7D)维的向量。
+
+经过如此的N=6层之后，我们就可以得到encoder的最终输出了，显然，它也是一个![[公式]](https://www.zhihu.com/equation?tex=n%5Ctimes+d_%7Bmodel%7D)的矩阵。
+
+此时，decoder就可以开始生成过程了。生成过程将encoder的输出作为key和value，将之前生成的词（经过相应的embedding与position encoding）通过一个Masked Multi-Head Attention之后的结果作为query，然后与encoder一样，进行N层处理+Linear层（一个维度变换的过程）+softmax之后就可以得到当前生成的词了。
+
+<p align="center">
+	<img src=./pictures/transformer_resideual_layer_norm_3.png alt="Sample"  width="700">
+	<p align="center">
+		<em>transformer encoder-dcoder结构</em>
+	</p>
+</p>
+
+<p align="center">
+	<img src=./pictures/transformer_decoding_1.gif alt="Sample"  width="700">
+	<p align="center">
+		<em>transformer_encoding过程</em>
+	</p>
+</p>
+
+<p align="center">
+	<img src=./pictures/transformer_decoding_2.gif alt="Sample"  width="700">
+	<p align="center">
+		<em>transformer_decoding过程</em>
+	</p>
+</p>
 
